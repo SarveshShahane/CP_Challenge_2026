@@ -28,5 +28,5 @@ jobs:
       - name: Update Worker Lambda function code
         run: |
           aws lambda update-function-code \
-            --function-name ${{ secrets.WORKER_LAMBDA_NAME || 'worker' }} \
+            --function-name cp3_contest \
             --zip-file fileb://worker.zip
