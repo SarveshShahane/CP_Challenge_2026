@@ -1,10 +1,22 @@
 import json
-from users import get_users,add_user
+from users import get_users, add_user, HEADERS
+
+
 def lambda_handler(event, context):
 
-    http_method = event.get('requestContext', {}).get('http', {}).get('method', 'POST')
+    http_method = (
+        event.get('requestContext', {}).get('http', {}).get('method')
+        or event.get('httpMethod', 'POST')
+    ).upper()
 
     print("HTTP Method:", http_method)
+
+    if http_method == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'headers': HEADERS,
+            'body': json.dumps({'message': 'Preflight check successful'})
+        }
 
     if http_method == 'GET':
 
@@ -25,9 +37,7 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
-            'headers': {
-                'Content-Type': 'application/json'
-            },
+            'headers': HEADERS,
             'body': json.dumps({
                 'message': 'Students fetched successfully',
                 'count': len(users),
@@ -48,9 +58,7 @@ def lambda_handler(event, context):
         except Exception:
             return {
                 'statusCode': 400,
-                'headers': {
-                    'Content-Type': 'application/json'
-                },
+                'headers': HEADERS,
                 'body': json.dumps({
                     'error': 'Malformed JSON payload'
                 })
@@ -59,9 +67,7 @@ def lambda_handler(event, context):
         if not data.get('name') or not data.get('enrollment_number'):
             return {
                 'statusCode': 400,
-                'headers': {
-                    'Content-Type': 'application/json'
-                },
+                'headers': HEADERS,
                 'body': json.dumps({
                     'error': 'Name and enrollment number are required'
                 })
@@ -69,15 +75,13 @@ def lambda_handler(event, context):
 
         response = add_user(**data)
         response.setdefault('headers', {})
-        response['headers']['Content-Type'] = 'application/json'
+        response['headers'].update(HEADERS)
 
         return response
 
     return {
         'statusCode': 405,
-        'headers': {
-            'Content-Type': 'application/json'
-        },
+        'headers': HEADERS,
         'body': json.dumps({
             'error': 'Method not allowed'
         })

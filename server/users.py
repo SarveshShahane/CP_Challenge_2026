@@ -6,13 +6,16 @@ from boto3.dynamodb.conditions import Attr
 
 REGION_NAME = os.environ.get("REGION_NAME")
 TABLE_NAME = os.environ.get("TABLE_NAME")
+CLIENT_URL = os.environ.get("CLIENT_URL")
+if CLIENT_URL and CLIENT_URL != "*":
+    CLIENT_URL = CLIENT_URL.rstrip("/")
 
 dynamodb = boto3.resource("dynamodb", region_name=REGION_NAME)
 table = dynamodb.Table(TABLE_NAME)
 
 HEADERS = {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "http://localhost:5173",
+    "Access-Control-Allow-Origin": CLIENT_URL,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
 }
