@@ -1,23 +1,22 @@
-name: Run Contest Worker
+name: Deploy Worker Lambda
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'  # Runs every 6 hours
-  workflow_dispatch:        # Allows manual trigger from GitHub UI
+  push:
+    branches: [main]
+    paths:
+      - 'worker/**'
+      - '.github/workflows/worker.yml'
 
 jobs:
-  contest-worker:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: pip install boto3
+      - name: Zip Worker Lambda files
+        run: |
+          cd worker
+          zip -r ../worker.zip . -x "*.env*" -x "__pycache__/*" -x "*.pyc" -x "*.postman_collection.json"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -26,8 +25,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-2
 
-      - name: Run contest sync worker
-        env:
-          TABLE_NAME: CP_Challenge_2026
-          REGION_NAME: ap-southeast-2
-        run: python worker/worker.py
+      - name: Update Worker Lambda function code
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ secrets.WORKER_LAMBDA_NAME || 'worker' }} \
+            --zip-file fileb://worker.zip
