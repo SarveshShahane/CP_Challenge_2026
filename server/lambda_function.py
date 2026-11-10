@@ -28,10 +28,7 @@ def lambda_handler(event, context):
         students = json.loads(response['body']).get('students', [])
 
         users = [
-            {
-                'name': student.get('name'),
-                'enrollment_number': student.get('enrollment_number')
-            }
+            {k: v for k, v in student.items() if k not in ('PK', 'SK')}
             for student in students
         ]
 
@@ -64,12 +61,13 @@ def lambda_handler(event, context):
                 })
             }
 
-        if not data.get('name') or not data.get('enrollment_number'):
+        enr_no = data.get('enr_no') or data.get('enrollment_number')
+        if not data.get('name') or not enr_no:
             return {
                 'statusCode': 400,
                 'headers': HEADERS,
                 'body': json.dumps({
-                    'error': 'Name and enrollment number are required'
+                    'error': 'Name and enr_no are required'
                 })
             }
 

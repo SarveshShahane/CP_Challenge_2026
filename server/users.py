@@ -23,17 +23,18 @@ HEADERS = {
 
 def add_user(**user):
     try:
-        name = user["name"]
-        enrollment_number = user["enrollment_number"]
+        enr_no = user.get("enr_no") or user.get("enrollment_number")
+
+        item = {
+            "PK": f"STUDENT#{enr_no}",
+            "SK": "PROFILE",
+            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            **user,
+            "enr_no": enr_no,
+        }
 
         table.put_item(
-            Item={
-                "PK": f"STUDENT#{enrollment_number}",
-                "SK": "PROFILE",
-                "name": name,
-                "enrollment_number": enrollment_number,
-                "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            },
+            Item=item,
             ConditionExpression='attribute_not_exists(PK)'
         )
 
@@ -43,14 +44,15 @@ def add_user(**user):
             "body": json.dumps(
                 {
                     "message": "User created successfully",
-                    "enrollment_number": enrollment_number,
+                    "enr_no": enr_no,
                 }
             ),
         }
 
     except Exception as e:
+        status_code = 409 if "ConditionalCheckFailedException" in str(e) else 500
         return {
-            "statusCode": 500,
+            "statusCode": status_code,
             "headers": HEADERS,
             "body": json.dumps({"message": "Failed to create user", "error": str(e)}),
         }
