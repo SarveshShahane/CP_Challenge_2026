@@ -12,6 +12,13 @@ from beginner_track import get_beginner_stats
 from cp_track import get_leetcode_stats, get_codeforces_stats
 
 
+def normalize_handle(val: str) -> str:
+    if not val:
+        return ""
+    clean = val.strip().split("?")[0].rstrip("/")
+    return clean.split("/")[-1].lstrip("@").strip()
+
+
 def handler(event=None, context=None):
     """
     Main worker handler: iterates over registered students in DynamoDB,
@@ -43,8 +50,8 @@ def handler(event=None, context=None):
         name = student.get("name", "Unknown")
         enr_no = student.get("enr_no") or student.get("enrollment_number", "N/A")
         track = student.get("track", "").strip()
-        lc_id = student.get("leetcode_id", "").strip()
-        cf_id = student.get("codeforces_id", "").strip()
+        lc_id = normalize_handle(student.get("leetcode_id", ""))
+        cf_id = normalize_handle(student.get("codeforces_id", ""))
 
         print(f"[{i}/{len(students)}] Processing {name} ({enr_no}) | Track: {track or 'Unspecified'}")
         now = datetime.datetime.now(datetime.timezone.utc).isoformat()

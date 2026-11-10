@@ -26,6 +26,13 @@ interface Participant {
   contests_updated_at?: string
 }
 
+function normalizeHandle(input?: string): string {
+  if (!input) return ''
+  const clean = input.trim().split('?')[0].replace(/\/+$/, '')
+  const parts = clean.split('/')
+  return (parts[parts.length - 1] || '').replace(/^@/, '').trim()
+}
+
 type TrackType = 'competitive' | 'beginner'
 type ThemeMode = 'dark' | 'light'
 
@@ -72,12 +79,20 @@ const App = () => {
       let cp: Participant[] = []
       let bg: Participant[] = []
 
+      const sanitize = (list: Participant[]) =>
+        list.map(u => ({
+          ...u,
+          leetcode_id: normalizeHandle(u.leetcode_id),
+          codeforces_id: normalizeHandle(u.codeforces_id),
+        }))
+
       if (data.competitive && data.beginner) {
-        cp = data.competitive
-        bg = data.beginner
+        cp = sanitize(data.competitive)
+        bg = sanitize(data.beginner)
       } else if (Array.isArray(data.users)) {
-        cp = data.users.filter((u: Participant) => !((u.track || '').toLowerCase().includes('beginner')))
-        bg = data.users.filter((u: Participant) => (u.track || '').toLowerCase().includes('beginner'))
+        const sanitized = sanitize(data.users)
+        cp = sanitized.filter((u: Participant) => !((u.track || '').toLowerCase().includes('beginner')))
+        bg = sanitized.filter((u: Participant) => (u.track || '').toLowerCase().includes('beginner'))
       }
 
       setCompetitiveList(cp)
