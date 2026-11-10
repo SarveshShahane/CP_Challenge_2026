@@ -2,6 +2,7 @@ import os
 import json
 import boto3
 import datetime
+from decimal import Decimal
 from boto3.dynamodb.conditions import Attr
 
 REGION_NAME = os.environ.get("REGION_NAME")
@@ -82,7 +83,8 @@ def get_users():
                     "message": "Students fetched successfully",
                     "count": len(students),
                     "students": students,
-                }
+                },
+                default=lambda o: int(o) if isinstance(o, Decimal) and o % 1 == 0 else float(o) if isinstance(o, Decimal) else str(o),
             ),
         }
 
