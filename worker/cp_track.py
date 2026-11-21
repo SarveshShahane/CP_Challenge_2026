@@ -123,8 +123,7 @@ def run_worker():
         cf_count, cf_diff = 0, 0.0
         if cf_id:
             cf_count, cf_diff = get_codeforces_stats(cf_id)
-            time.sleep(2)  # Codeforces rate limit: 1 request per 2 seconds
-
+            time.sleep(2) 
         total_contests = lc_count + cf_count
         rating_increment = round(lc_diff + cf_diff, 2)
 

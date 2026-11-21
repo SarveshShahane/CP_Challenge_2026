@@ -67,7 +67,6 @@ def get_users():
 
         students.extend(response.get("Items", []))
 
-        # Handle pagination
         while "LastEvaluatedKey" in response:
             response = table.scan(
                 FilterExpression=Attr("SK").eq("PROFILE"),

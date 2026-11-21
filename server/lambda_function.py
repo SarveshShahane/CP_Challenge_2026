@@ -34,7 +34,6 @@ def lambda_handler(event, context):
             for student in students
         ]
 
-        # Beginner's Track: streak desc, tie-break: ac_count desc, active_days desc
         beginner_users = [
             u for u in all_users if 'beginner' in (u.get('track') or '').lower()
         ]
@@ -47,7 +46,6 @@ def lambda_handler(event, context):
             reverse=True,
         )
 
-        # Competitive Track: total_contests desc, tie-break: rating_increment desc
         cp_users = [
             u for u in all_users if 'beginner' not in (u.get('track') or '').lower()
         ]
@@ -83,7 +81,6 @@ def lambda_handler(event, context):
                 }),
             }
 
-        # Default (no track specified): return both tracks separately and combined
         return {
             'statusCode': 200,
             'headers': HEADERS,

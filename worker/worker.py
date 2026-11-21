@@ -5,7 +5,6 @@ import json
 import datetime
 from decimal import Decimal
 
-# Ensure imports resolve whether run as module or script
 sys.path.insert(0, os.path.dirname(__file__))
 
 from beginner_track import get_beginner_stats
@@ -59,9 +58,8 @@ def handler(event=None, context=None):
         is_beginner = "beginner" in track.lower() if track else False
 
         if is_beginner:
-            # Beginner's Track: Daily Streak & Accepted problem counts
             stats = get_beginner_stats(lc_id) if lc_id else {
-                "streak": 0, "total_active_days": 0, "ac_count": 0,
+                "streak": 0, "current_streak": 0, "total_active_days": 0, "ac_count": 0,
                 "easy_ac": 0, "medium_ac": 0, "hard_ac": 0
             }
             time.sleep(0.5)
@@ -69,12 +67,13 @@ def handler(event=None, context=None):
             table.update_item(
                 Key={"PK": student["PK"], "SK": student["SK"]},
                 UpdateExpression=(
-                    "SET streak = :strk, total_active_days = :ad, "
+                    "SET streak = :strk, current_streak = :cstrk, total_active_days = :ad, "
                     "ac_count = :ac, easy_ac = :eac, medium_ac = :mac, "
                     "hard_ac = :hac, updated_at = :now"
                 ),
                 ExpressionAttributeValues={
                     ":strk": stats["streak"],
+                    ":cstrk": stats.get("current_streak", 0),
                     ":ad": stats["total_active_days"],
                     ":ac": stats["ac_count"],
                     ":eac": stats["easy_ac"],
@@ -83,18 +82,16 @@ def handler(event=None, context=None):
                     ":now": now,
                 },
             )
-            print(f"  -> Beginner: Streak={stats['streak']}, Total AC={stats['ac_count']} (E:{stats['easy_ac']} M:{stats['medium_ac']} H:{stats['hard_ac']})")
+            print(f"  -> Beginner: Streak={stats['streak']} (Current={stats.get('current_streak', 0)}, Active={stats['total_active_days']}), AC={stats['ac_count']}")
 
         else:
-            # Competitive Track: Contests & Rating increment
             lc_count, lc_diff = get_leetcode_stats(lc_id) if lc_id else (0, 0.0)
             time.sleep(0.5)
 
             cf_count, cf_diff = 0, 0.0
             if cf_id:
                 cf_count, cf_diff = get_codeforces_stats(cf_id)
-                time.sleep(2)  # Codeforces rate limit: 1 request per 2 seconds
-
+                time.sleep(2)  
             total_contests = lc_count + cf_count
             rating_increment = round(lc_diff + cf_diff, 2)
 
