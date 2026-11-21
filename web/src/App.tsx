@@ -51,7 +51,6 @@ const App = () => {
   const [beginnerList, setBeginnerList] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [lastUpdated, setLastUpdated] = useState<string>('')
 
   useEffect(() => {
     const root = document.documentElement
@@ -97,7 +96,6 @@ const App = () => {
 
       setCompetitiveList(cp)
       setBeginnerList(bg)
-      setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
     } catch (err: unknown) {
       console.error('Failed to load leaderboard data:', err)
       const message = err instanceof Error ? err.message : 'Failed to fetch leaderboard data'
@@ -160,13 +158,13 @@ const App = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-semibold tracking-tight">Co.L.D CP Marathon 3.0</h1>
+                <h1 className="text-base font-semibold tracking-tight">Co.L.D Marathon 3.0</h1>
+              
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2 self-end sm:self-auto">
-
             <button
               onClick={toggleTheme}
               aria-label="Toggle theme"
@@ -278,7 +276,7 @@ const App = () => {
             {activeTrack === 'competitive' ? (
               <span>Ranked by <strong>Contests Attended</strong> (LeetCode + Codeforces). Tie-breaker: <strong>Net Rating Δ</strong>.</span>
             ) : (
-              <span>Ranked by <strong>Daily LeetCode Streak</strong>. Tie-breaker: <strong>Total Accepted Problems</strong>.</span>
+              <span>Ranked by <strong>Daily LeetCode Streak</strong></span>
             )}
           </div>
           <span className="font-mono text-[11px] text-neutral-400">
