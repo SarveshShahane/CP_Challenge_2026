@@ -25,37 +25,46 @@ HEADERS = {
 def add_user(**user):
     try:
         enr_no = user.get("enr_no") or user.get("enrollment_number")
+        pk = f"STUDENT#{enr_no}"
+        sk = "PROFILE"
+
+        # Preserve created_at and existing calculated stats if updating
+        existing = table.get_item(Key={"PK": pk, "SK": sk}).get("Item") or {}
+        created_at = existing.get("created_at") or datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+        # If switching to Beginner's Track, clean out any leftover CP fields
+        if "beginner" in (user.get("track") or "").lower():
+            for cf_key in ("codeforces_id", "codeforces_contests", "codeforces_rating_diff", "total_contests", "rating_increment", "leetcode_contests", "leetcode_rating_diff"):
+                existing.pop(cf_key, None)
+                user.pop(cf_key, None)
 
         item = {
-            "PK": f"STUDENT#{enr_no}",
-            "SK": "PROFILE",
-            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            **existing,
             **user,
+            "PK": pk,
+            "SK": sk,
             "enr_no": enr_no,
+            "created_at": created_at,
         }
 
-        table.put_item(
-            Item=item,
-            ConditionExpression='attribute_not_exists(PK)'
-        )
+        table.put_item(Item=item)
 
         return {
-            "statusCode": 201,
+            "statusCode": 200,
             "headers": HEADERS,
             "body": json.dumps(
                 {
-                    "message": "User created successfully",
+                    "message": "User saved successfully",
                     "enr_no": enr_no,
                 }
             ),
         }
 
     except Exception as e:
-        status_code = 409 if "ConditionalCheckFailedException" in str(e) else 500
         return {
-            "statusCode": status_code,
+            "statusCode": 500,
             "headers": HEADERS,
-            "body": json.dumps({"message": "Failed to create user", "error": str(e)}),
+            "body": json.dumps({"message": "Failed to save user", "error": str(e)}),
         }
 
 
