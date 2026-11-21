@@ -160,35 +160,12 @@ const App = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-semibold tracking-tight">Co.L.D Marathon 3.0</h1>
-                <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-800">
-                  Nov 15 – Feb 15
-                </span>
+                <h1 className="text-base font-semibold tracking-tight">Co.L.D CP Marathon 3.0</h1>
               </div>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                Official leaderboard for consistency & contest performance
-              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 self-end sm:self-auto">
-            {lastUpdated && (
-              <span className="text-[11px] font-mono text-neutral-400 dark:text-neutral-500 mr-1 hidden sm:inline">
-                Synced {lastUpdated}
-              </span>
-            )}
-
-            <button
-              onClick={loadData}
-              title="Refresh"
-              aria-label="Refresh data"
-              disabled={loading}
-              className="p-1.5 rounded-md text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-900 border border-transparent hover:border-neutral-200 dark:hover:border-neutral-800 transition disabled:opacity-50"
-            >
-              <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-              </svg>
-            </button>
 
             <button
               onClick={toggleTheme}
@@ -494,8 +471,7 @@ const App = () => {
 
         {/* Minimal Footer */}
         <footer className="mt-8 pt-4 border-t border-neutral-100 dark:border-neutral-900 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[11px] text-neutral-400 font-mono gap-2">
-          <span>Co.L.D — Committee on Learn & Development</span>
-          <span>Data synced via AWS Lambda & DynamoDB</span>
+          <span>Co.L.D — Code Learn Discuss</span>
         </footer>
 
       </div>
