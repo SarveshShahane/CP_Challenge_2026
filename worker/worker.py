@@ -55,7 +55,13 @@ def handler(event=None, context=None):
         print(f"[{i}/{len(students)}] Processing {name} ({enr_no}) | Track: {track or 'Unspecified'}")
         now = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
-        is_beginner = "beginner" in track.lower() if track else False
+        t = track.lower() if track else ""
+        is_both = "both" in t or ("beginner" in t and "competitive" in t)
+        is_beginner = is_both or ("beginner" in t)
+        is_cp = is_both or ("competitive" in t) or (not is_beginner)
+
+        update_parts = ["updated_at = :now"]
+        attr_values = {":now": now}
 
         if is_beginner:
             stats = get_beginner_stats(lc_id) if lc_id else {
@@ -64,27 +70,27 @@ def handler(event=None, context=None):
             }
             time.sleep(0.5)
 
-            table.update_item(
-                Key={"PK": student["PK"], "SK": student["SK"]},
-                UpdateExpression=(
-                    "SET streak = :strk, current_streak = :cstrk, total_active_days = :ad, "
-                    "ac_count = :ac, easy_ac = :eac, medium_ac = :mac, "
-                    "hard_ac = :hac, updated_at = :now"
-                ),
-                ExpressionAttributeValues={
-                    ":strk": stats["streak"],
-                    ":cstrk": stats.get("current_streak", 0),
-                    ":ad": stats["total_active_days"],
-                    ":ac": stats["ac_count"],
-                    ":eac": stats["easy_ac"],
-                    ":mac": stats["medium_ac"],
-                    ":hac": stats["hard_ac"],
-                    ":now": now,
-                },
-            )
+            update_parts.extend([
+                "streak = :strk",
+                "current_streak = :cstrk",
+                "total_active_days = :ad",
+                "ac_count = :ac",
+                "easy_ac = :eac",
+                "medium_ac = :mac",
+                "hard_ac = :hac",
+            ])
+            attr_values.update({
+                ":strk": stats["streak"],
+                ":cstrk": stats.get("current_streak", 0),
+                ":ad": stats["total_active_days"],
+                ":ac": stats["ac_count"],
+                ":eac": stats["easy_ac"],
+                ":mac": stats["medium_ac"],
+                ":hac": stats["hard_ac"],
+            })
             print(f"  -> Beginner: Streak={stats['streak']} (Current={stats.get('current_streak', 0)}, Active={stats['total_active_days']}), AC={stats['ac_count']}")
 
-        else:
+        if is_cp:
             lc_count, lc_diff = get_leetcode_stats(lc_id) if lc_id else (0, 0.0)
             time.sleep(0.5)
 
@@ -95,25 +101,29 @@ def handler(event=None, context=None):
             total_contests = lc_count + cf_count
             rating_increment = round(lc_diff + cf_diff, 2)
 
-            table.update_item(
-                Key={"PK": student["PK"], "SK": student["SK"]},
-                UpdateExpression=(
-                    "SET leetcode_contests = :lc, codeforces_contests = :cf, "
-                    "total_contests = :tot, leetcode_rating_diff = :lcd, "
-                    "codeforces_rating_diff = :cfd, rating_increment = :ri, "
-                    "updated_at = :now"
-                ),
-                ExpressionAttributeValues={
-                    ":lc": lc_count,
-                    ":cf": cf_count,
-                    ":tot": total_contests,
-                    ":lcd": Decimal(str(lc_diff)),
-                    ":cfd": Decimal(str(cf_diff)),
-                    ":ri": Decimal(str(rating_increment)),
-                    ":now": now,
-                },
-            )
+            update_parts.extend([
+                "leetcode_contests = :lc",
+                "codeforces_contests = :cf",
+                "total_contests = :tot",
+                "leetcode_rating_diff = :lcd",
+                "codeforces_rating_diff = :cfd",
+                "rating_increment = :ri",
+            ])
+            attr_values.update({
+                ":lc": lc_count,
+                ":cf": cf_count,
+                ":tot": total_contests,
+                ":lcd": Decimal(str(lc_diff)),
+                ":cfd": Decimal(str(cf_diff)),
+                ":ri": Decimal(str(rating_increment)),
+            })
             print(f"  -> Competitive: Contests={total_contests} (LC:{lc_count} CF:{cf_count}) | Net Rating={rating_increment:+} (LC:{lc_diff:+} CF:{cf_diff:+})")
+
+        table.update_item(
+            Key={"PK": student["PK"], "SK": student["SK"]},
+            UpdateExpression="SET " + ", ".join(update_parts),
+            ExpressionAttributeValues=attr_values,
+        )
 
     print("Worker finished successfully.")
     return {

@@ -22,6 +22,14 @@ HEADERS = {
 }
 
 
+def parse_tracks(track_str):
+    t = (track_str or "").strip().lower()
+    is_both = "both" in t or ("beginner" in t and "competitive" in t)
+    is_beginner = is_both or ("beginner" in t)
+    is_cp = is_both or ("competitive" in t) or (not is_beginner)
+    return is_beginner, is_cp, is_both
+
+
 def add_user(**user):
     try:
         enr_no = user.get("enr_no") or user.get("enrollment_number")
@@ -32,11 +40,20 @@ def add_user(**user):
         existing = table.get_item(Key={"PK": pk, "SK": sk}).get("Item") or {}
         created_at = existing.get("created_at") or datetime.datetime.now(datetime.timezone.utc).isoformat()
 
-        # If switching to Beginner's Track, clean out any leftover CP fields
-        if "beginner" in (user.get("track") or "").lower():
+        track_str = user.get("track") or existing.get("track") or ""
+        is_beginner, is_cp, is_both = parse_tracks(track_str)
+
+        # Only clean out CP fields if strictly beginner only (not both)
+        if is_beginner and not is_cp:
             for cf_key in ("codeforces_id", "codeforces_contests", "codeforces_rating_diff", "total_contests", "rating_increment", "leetcode_contests", "leetcode_rating_diff"):
                 existing.pop(cf_key, None)
                 user.pop(cf_key, None)
+
+        # Only clean out Beginner fields if strictly competitive only (not both)
+        if is_cp and not is_beginner:
+            for bg_key in ("streak", "current_streak", "total_active_days", "ac_count", "easy_ac", "medium_ac", "hard_ac"):
+                existing.pop(bg_key, None)
+                user.pop(bg_key, None)
 
         item = {
             **existing,

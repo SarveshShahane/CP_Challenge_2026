@@ -34,8 +34,16 @@ def lambda_handler(event, context):
             for student in students
         ]
 
+        def is_beginner_participant(track):
+            t = (track or '').lower()
+            return 'beginner' in t or 'both' in t
+
+        def is_cp_participant(track):
+            t = (track or '').lower()
+            return 'competitive' in t or 'both' in t or ('beginner' not in t)
+
         beginner_users = [
-            u for u in all_users if 'beginner' in (u.get('track') or '').lower()
+            u for u in all_users if is_beginner_participant(u.get('track'))
         ]
         beginner_users.sort(
             key=lambda u: (
@@ -47,7 +55,7 @@ def lambda_handler(event, context):
         )
 
         cp_users = [
-            u for u in all_users if 'beginner' not in (u.get('track') or '').lower()
+            u for u in all_users if is_cp_participant(u.get('track'))
         ]
         cp_users.sort(
             key=lambda u: (
@@ -89,7 +97,7 @@ def lambda_handler(event, context):
                 'count': len(all_users),
                 'beginner': beginner_users,
                 'competitive': cp_users,
-                'users': cp_users + beginner_users,
+                'users': all_users,
             }),
         }
 
