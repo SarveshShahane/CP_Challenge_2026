@@ -120,6 +120,7 @@ def get_beginner_stats(username: str, start_date: datetime.date = START_DATE) ->
                 "streak": max_streak,
                 "current_streak": current_streak,
                 "total_active_days": active_days,
+                "active_days": active_days,
                 "ac_count": ac_map.get("All", 0),
                 "easy_ac": ac_map.get("Easy", 0),
                 "medium_ac": ac_map.get("Medium", 0),

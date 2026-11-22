@@ -74,6 +74,7 @@ def handler(event=None, context=None):
                 "streak = :strk",
                 "current_streak = :cstrk",
                 "total_active_days = :ad",
+                "active_days = :ad",
                 "ac_count = :ac",
                 "easy_ac = :eac",
                 "medium_ac = :mac",

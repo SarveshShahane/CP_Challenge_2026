@@ -47,9 +47,9 @@ def lambda_handler(event, context):
         ]
         beginner_users.sort(
             key=lambda u: (
-                int(u.get('streak') or 0),
+                int(u.get('total_active_days') or u.get('active_days') or 0),
                 int(u.get('ac_count') or 0),
-                int(u.get('total_active_days') or 0),
+                int(u.get('streak') or 0),
             ),
             reverse=True,
         )

@@ -18,6 +18,7 @@ interface Participant {
   codeforces_rating_diff?: number
   streak?: number
   total_active_days?: number
+  active_days?: number
   ac_count?: number
   easy_ac?: number
   medium_ac?: number
@@ -143,13 +144,13 @@ const App = () => {
         if (cB !== cA) return cB - cA
         return (b.rating_increment || 0) - (a.rating_increment || 0)
       } else {
-        const sA = a.streak || 0
-        const sB = b.streak || 0
-        if (sB !== sA) return sB - sA
+        const adA = a.total_active_days ?? a.active_days ?? 0
+        const adB = b.total_active_days ?? b.active_days ?? 0
+        if (adB !== adA) return adB - adA
         const acA = a.ac_count || 0
         const acB = b.ac_count || 0
         if (acB !== acA) return acB - acA
-        return (b.total_active_days || 0) - (a.total_active_days || 0)
+        return (b.streak || 0) - (a.streak || 0)
       }
     })
   }, [activeTrack, competitiveList, beginnerList, search, batchFilter])
@@ -284,7 +285,7 @@ const App = () => {
             {activeTrack === 'competitive' ? (
               <span>Ranked by <strong>Contests Attended</strong> (LeetCode + Codeforces). Tie-breaker: <strong>Net Rating Δ</strong>.</span>
             ) : (
-              <span>Ranked by <strong>Daily LeetCode Streak</strong></span>
+              <span>Ranked by <strong>Active Days</strong> on LeetCode. Tie-breaker: <strong>Total AC</strong>.</span>
             )}
           </div>
           <span className="font-mono text-[11px] text-neutral-400">
@@ -329,7 +330,7 @@ const App = () => {
                       </>
                     ) : (
                       <>
-                        <th className="py-2.5 px-4 text-right">Streak</th>
+                        <th className="py-2.5 px-4 text-right">Active Days</th>
                         <th className="py-2.5 px-4 text-right">Total AC</th>
                         <th className="py-2.5 px-4 text-right">E · M · H</th>
                       </>
@@ -447,11 +448,11 @@ const App = () => {
                           </>
                         ) : (
                           <>
-                            {/* Streak */}
+                            {/* Active Days */}
                             <td className="py-3 px-4 text-right font-mono font-semibold">
-                              {(student.streak || 0) > 0 ? (
+                              {(student.total_active_days ?? student.active_days ?? 0) > 0 ? (
                                 <span className="text-orange-600 dark:text-orange-400">
-                                  {student.streak}d
+                                  {student.total_active_days ?? student.active_days}d
                                 </span>
                               ) : (
                                 <span className="text-neutral-400">0d</span>
