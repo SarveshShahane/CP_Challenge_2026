@@ -465,6 +465,9 @@ const App = () => {
                             </td>
 
                             {/* Challenge AC */}
+                            <td className="py-3 px-4 text-right font-mono font-semibold text-neutral-900 dark:text-neutral-100">
+                              {student.challenge_ac ?? 0}
+                            </td>
 
                             {/* Difficulty Breakdown */}
                             <td className="py-3 px-4 text-right font-mono text-[11px] text-neutral-500">
