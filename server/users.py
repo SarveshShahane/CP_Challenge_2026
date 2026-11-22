@@ -54,7 +54,6 @@ def add_user(**user):
 
         # Lookup existing item by normalized PK
         existing = table.get_item(Key={"PK": pk, "SK": sk}).get("Item")
-        old_pk_to_delete = None
 
         # If not found by PK, check if an existing student has the exact same email
         user_email = (user.get("email") or "").strip().lower()
@@ -65,8 +64,6 @@ def add_user(**user):
             items = scan_resp.get("Items", [])
             if items:
                 existing = items[0]
-                if existing.get("PK") != pk:
-                    old_pk_to_delete = existing.get("PK")
 
         if not existing:
             existing = {}
@@ -111,12 +108,6 @@ def add_user(**user):
         }
 
         table.put_item(Item=item)
-
-        if old_pk_to_delete and old_pk_to_delete != pk:
-            try:
-                table.delete_item(Key={"PK": old_pk_to_delete, "SK": sk})
-            except Exception as del_err:
-                print("Failed to delete old duplicate PK:", del_err)
 
         return {
             "statusCode": 200,
