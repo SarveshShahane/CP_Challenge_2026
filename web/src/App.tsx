@@ -379,13 +379,7 @@ const App = () => {
                                 &apos;{student.batch_no.toString().slice(-2)}
                               </span>
                             )}
-                            {((student.track || '').toLowerCase().includes('both') ||
-                              ((student.track || '').toLowerCase().includes('beginner') &&
-                                (student.track || '').toLowerCase().includes('competitive'))) && (
-                              <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700">
-                                Dual
-                              </span>
-                            )}
+                            
                           </div>
                           <span className="text-[11px] font-mono text-neutral-400 block mt-0.5">
                             {student.enr_no || student.enrollment_number || '—'}
