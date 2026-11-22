@@ -337,7 +337,6 @@ const App = () => {
                       <>
                         <th className="py-2.5 px-4 text-right">Active Days</th>
                         <th className="py-2.5 px-4 text-right">Challenge AC</th>
-                        <th className="py-2.5 px-4 text-right">E · M · H</th>
                       </>
                     )}
                   </tr>
