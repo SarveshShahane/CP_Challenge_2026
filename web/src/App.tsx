@@ -468,15 +468,6 @@ const App = () => {
                             <td className="py-3 px-4 text-right font-mono font-semibold text-neutral-900 dark:text-neutral-100">
                               {student.challenge_ac ?? 0}
                             </td>
-
-                            {/* Difficulty Breakdown */}
-                            <td className="py-3 px-4 text-right font-mono text-[11px] text-neutral-500">
-                              <span title="Easy">{student.easy_ac || 0}E</span>
-                              <span className="text-neutral-300 dark:text-neutral-700 mx-1">·</span>
-                              <span title="Medium">{student.medium_ac || 0}M</span>
-                              <span className="text-neutral-300 dark:text-neutral-700 mx-1">·</span>
-                              <span title="Hard">{student.hard_ac || 0}H</span>
-                            </td>
                           </>
                         )}
                       </tr>
