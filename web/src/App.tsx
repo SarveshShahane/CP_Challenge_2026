@@ -19,6 +19,8 @@ interface Participant {
   streak?: number
   total_active_days?: number
   active_days?: number
+  challenge_ac?: number
+  baseline_ac_count?: number
   ac_count?: number
   easy_ac?: number
   medium_ac?: number
@@ -147,6 +149,9 @@ const App = () => {
         const adA = a.total_active_days ?? a.active_days ?? 0
         const adB = b.total_active_days ?? b.active_days ?? 0
         if (adB !== adA) return adB - adA
+        const cacA = a.challenge_ac ?? 0
+        const cacB = b.challenge_ac ?? 0
+        if (cacB !== cacA) return cacB - cacA
         const acA = a.ac_count || 0
         const acB = b.ac_count || 0
         if (acB !== acA) return acB - acA
@@ -285,7 +290,7 @@ const App = () => {
             {activeTrack === 'competitive' ? (
               <span>Ranked by <strong>Contests Attended</strong> (LeetCode + Codeforces). Tie-breaker: <strong>Net Rating Δ</strong>.</span>
             ) : (
-              <span>Ranked by <strong>Active Days</strong> on LeetCode. Tie-breaker: <strong>Total AC</strong>.</span>
+              <span>Ranked by <strong>Active Days</strong> on LeetCode. Tie-breaker: <strong>Accepted Questions (Challenge)</strong>.</span>
             )}
           </div>
           <span className="font-mono text-[11px] text-neutral-400">
@@ -331,7 +336,7 @@ const App = () => {
                     ) : (
                       <>
                         <th className="py-2.5 px-4 text-right">Active Days</th>
-                        <th className="py-2.5 px-4 text-right">Total AC</th>
+                        <th className="py-2.5 px-4 text-right">Challenge AC</th>
                         <th className="py-2.5 px-4 text-right">E · M · H</th>
                       </>
                     )}
@@ -459,9 +464,12 @@ const App = () => {
                               )}
                             </td>
 
-                            {/* Total AC */}
+                            {/* Challenge AC */}
                             <td className="py-3 px-4 text-right font-mono font-semibold text-neutral-900 dark:text-neutral-100">
-                              {student.ac_count || 0}
+                              <div>{student.challenge_ac ?? 0}</div>
+                              <span className="text-[10px] font-normal text-neutral-400 block -mt-0.5" title="All-time accepted count">
+                                all-time: {student.ac_count || 0}
+                              </span>
                             </td>
 
                             {/* Difficulty Breakdown */}

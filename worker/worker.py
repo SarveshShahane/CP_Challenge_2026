@@ -64,8 +64,16 @@ def handler(event=None, context=None):
         attr_values = {":now": now}
 
         if is_beginner:
-            stats = get_beginner_stats(lc_id) if lc_id else {
-                "streak": 0, "current_streak": 0, "total_active_days": 0, "ac_count": 0,
+            existing_baseline = student.get("baseline_ac_count")
+            if existing_baseline is not None:
+                try:
+                    existing_baseline = int(existing_baseline)
+                except Exception:
+                    existing_baseline = None
+
+            stats = get_beginner_stats(lc_id, baseline_ac=existing_baseline) if lc_id else {
+                "streak": 0, "current_streak": 0, "total_active_days": 0, "active_days": 0,
+                "challenge_ac": 0, "baseline_ac_count": 0, "ac_count": 0,
                 "easy_ac": 0, "medium_ac": 0, "hard_ac": 0
             }
             time.sleep(0.5)
@@ -75,6 +83,8 @@ def handler(event=None, context=None):
                 "current_streak = :cstrk",
                 "total_active_days = :ad",
                 "active_days = :ad",
+                "challenge_ac = :cac",
+                "baseline_ac_count = :bac",
                 "ac_count = :ac",
                 "easy_ac = :eac",
                 "medium_ac = :mac",
@@ -84,12 +94,14 @@ def handler(event=None, context=None):
                 ":strk": stats["streak"],
                 ":cstrk": stats.get("current_streak", 0),
                 ":ad": stats["total_active_days"],
+                ":cac": stats.get("challenge_ac", 0),
+                ":bac": stats.get("baseline_ac_count", 0),
                 ":ac": stats["ac_count"],
                 ":eac": stats["easy_ac"],
                 ":mac": stats["medium_ac"],
                 ":hac": stats["hard_ac"],
             })
-            print(f"  -> Beginner: Streak={stats['streak']} (Current={stats.get('current_streak', 0)}, Active={stats['total_active_days']}), AC={stats['ac_count']}")
+            print(f"  -> Beginner: Active={stats['total_active_days']}d, Challenge AC={stats['challenge_ac']} (Total AC={stats['ac_count']}, Base={stats.get('baseline_ac_count')})")
 
         if is_cp:
             lc_count, lc_diff = get_leetcode_stats(lc_id) if lc_id else (0, 0.0)
